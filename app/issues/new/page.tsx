@@ -1,6 +1,6 @@
 'use client';
 import { Button, Callout, Text, TextField } from '@radix-ui/themes';
-import React from 'react';
+import React, { useState } from 'react';
 import {useForm, Controller} from 'react-hook-form';
 import SimpleMDE from "react-simplemde-editor";
 import axios from 'axios';
@@ -8,8 +8,9 @@ import "easymde/dist/easymde.min.css";
 import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { issueSchema } from '@/app/validationSchema';
-import { z } from 'zod';
+import { set, z } from 'zod';
 import ErrorMessage from '@/app/components/ErrorMessage';
+import Spinner from '@/app/components/Spinner';
 
 
 type NewIssueForm  = z.infer<typeof issueSchema>;
@@ -20,6 +21,7 @@ const NewIssuePage = () => {
     { resolver:zodResolver(issueSchema)}
   );
   const [error, setError] = React.useState<string | null>('');
+  const [isSubmitting, setSubmitting] =useState(false);
 
   return (
     <div className='max-w-xl'>
@@ -28,9 +30,13 @@ const NewIssuePage = () => {
         </Callout.Root>)}
       <form className='space-y-3'
      onSubmit={handleSubmit(async (data) => {
-        try{await axios.post('/api/issues', data);
+        try{
+          setSubmitting(true);
+          console.log(data);
+          await axios.post('/api/issues', data);
         router.push('/issues');}
         catch(err){
+          setSubmitting(false);
           setError('Something went wrong. Please try again.');
           console.error(err)
         }
@@ -48,7 +54,7 @@ const NewIssuePage = () => {
       )}
      />
      <ErrorMessage>{errors.description?.message}</ErrorMessage>
-<Button>Submit New Issue</Button>
+<Button disabled={isSubmitting}>Submit New Issue {isSubmitting && <Spinner/>} </Button>
     </form>
     </div>
   )
