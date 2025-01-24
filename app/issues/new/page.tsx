@@ -1,7 +1,7 @@
 'use client';
 import { Button, Callout, Text, TextField } from '@radix-ui/themes';
 import React, { useState } from 'react';
-import {useForm, Controller} from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import SimpleMDE from "react-simplemde-editor";
 import axios from 'axios';
 import "easymde/dist/easymde.min.css";
@@ -13,49 +13,51 @@ import ErrorMessage from '@/app/components/ErrorMessage';
 import Spinner from '@/app/components/Spinner';
 
 
-type NewIssueForm  = z.infer<typeof issueSchema>;
+type NewIssueForm = z.infer<typeof issueSchema>;
 
 const NewIssuePage = () => {
   const router = useRouter();
-  const { register, handleSubmit, control, formState:{errors} } = useForm<NewIssueForm>(
-    { resolver:zodResolver(issueSchema)}
+  const { register, handleSubmit, control, formState: { errors } } = useForm<NewIssueForm>(
+    { resolver: zodResolver(issueSchema) }
   );
   const [error, setError] = React.useState<string | null>('');
-  const [isSubmitting, setSubmitting] =useState(false);
+  const [isSubmitting, setSubmitting] = useState(false);
+  const onSubmit = handleSubmit(async (data) => {
+    try {
+      setSubmitting(true);
+      console.log(data);
+      await axios.post('/api/issues', data);
+      router.push('/issues');
+    }
+    catch (err) {
+      setSubmitting(false);
+      setError('Something went wrong. Please try again.');
+      console.error(err)
+    }
+  })
 
   return (
     <div className='max-w-xl'>
       {error && (<Callout.Root color='red' className='mb-5'>
-         <Callout.Text>{error}</Callout.Text>        
-        </Callout.Root>)}
+        <Callout.Text>{error}</Callout.Text>
+      </Callout.Root>)}
       <form className='space-y-3'
-     onSubmit={handleSubmit(async (data) => {
-        try{
-          setSubmitting(true);
-          console.log(data);
-          await axios.post('/api/issues', data);
-        router.push('/issues');}
-        catch(err){
-          setSubmitting(false);
-          setError('Something went wrong. Please try again.');
-          console.error(err)
-        }
-     })}>  
+        onSubmit={onSubmit}>
         <TextField.Root placeholder="Title" {...register('title')}>
-     </TextField.Root>
+        </TextField.Root>
 
-    <ErrorMessage>{errors.title?.message}</ErrorMessage>
+        <ErrorMessage>{errors.title?.message}</ErrorMessage>
 
-     <Controller 
-      name='description'
-      control={control}
-      render={({field}) => (
-        <SimpleMDE placeholder='Add a description here...' {...field}/>
-      )}
-     />
-     <ErrorMessage>{errors.description?.message}</ErrorMessage>
-<Button disabled={isSubmitting}>Submit New Issue {isSubmitting && <Spinner/>} </Button>
-    </form>
+        <Controller
+          name='description'
+          control={control}
+          render={({ field }) => (
+            <SimpleMDE placeholder='Add a description here...' {...field} />
+          )}
+        />
+        <ErrorMessage>{errors.description?.message}</ErrorMessage>
+        <Button disabled={isSubmitting}>Submit New Issue {isSubmitting && <Spinner />} </Button>
+      </form>
     </div>
   )
 }
