@@ -30,8 +30,14 @@ const IssueForm = ({issue}: IssueFormProps) => {
     try {
       setSubmitting(true);
       console.log(data);
-      await axios.post('/api/issues', data);
-      router.push('/issues');
+      if(issue) 
+        // If issue is provided, update the existing issue
+        await axios.patch('/api/issues/'+ issue.id, data);
+      else        
+          await axios.post('/api/issues', data);
+
+      router.push('/issues');    
+      
     }
     catch (err) {
       setSubmitting(false);
@@ -61,7 +67,9 @@ const IssueForm = ({issue}: IssueFormProps) => {
           )}
         />
         <ErrorMessage>{errors.description?.message}</ErrorMessage>
-        <Button disabled={isSubmitting}>Submit New Issue {isSubmitting && <Spinner />} </Button>
+        <Button disabled={isSubmitting}>
+          {issue? 'Update Issue':'Submit New Issue'} {' '}
+          {isSubmitting && <Spinner />} </Button>
       </form>
     </div>
   )
