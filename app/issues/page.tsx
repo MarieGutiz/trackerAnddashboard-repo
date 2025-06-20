@@ -5,6 +5,7 @@ import { Table } from "@radix-ui/themes";
 // import IssueStatusBadge from '../components/IssueStatusBadge';
 // import Link from '../components/Link';
 import IssueButton from './IssueButton';
+import exp from 'constants';
 
 const IssuesPage = async () => {
   const issues = await prisma.issue.findMany();
@@ -36,5 +37,7 @@ const IssuesPage = async () => {
     </div>
   )
 }
+export const dynamic = 'force-dynamic'; // Force revalidation on every request
+
 
 export default IssuesPage
