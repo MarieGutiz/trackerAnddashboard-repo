@@ -1,9 +1,15 @@
+
 import React from 'react'
-import IssueForm from '../../_components/IssueForm'
 import { prisma } from '@/prisma/client'
 import { notFound } from 'next/navigation'
+import IssueFormSkeleton from './loading'
+import IssueFormWrapper from '../../_components/IssueFormWrapper'
+// import dynamic from 'next/dynamic'
 
-
+// const IssueForm = dynamic(
+//     () => import('@/app/issues/_components/IssueForm'),
+//     { ssr: false, loading: () => <IssueFormSkeleton /> }
+// )
 interface EditIssuePageProps {
     params: { id: string }
 }
@@ -19,7 +25,7 @@ const EditIssuePage = async ({ params }: EditIssuePageProps) => {
     })
 
     return (
-        <IssueForm issue={issue || undefined} />
+        <IssueFormWrapper issue={issue || undefined} />
     )
 }
 
