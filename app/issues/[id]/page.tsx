@@ -13,7 +13,6 @@ interface IssueDetailPageProps {
 }
 
 const IssueDetailPage = async ({ params }: IssueDetailPageProps) => {
-
     const { id } = await params
     const issueId = parseInt(id)
 
